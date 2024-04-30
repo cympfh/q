@@ -24,9 +24,7 @@ impl Controller {
                 eprintln!("No more q!!");
                 break;
             }
-            if self.debug {
-                eprintln!("DEBUG: executing {:?}", jobs[i]);
-            }
+            eprintln!("Executing {}", jobs[i]);
             match eval(&jobs[i].cmd) {
                 Ok(code) => {
                     self.database.finish(jobs[i].id, code)?;
