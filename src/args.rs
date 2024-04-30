@@ -16,6 +16,11 @@ pub struct Args {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    Show,
-    Revive { id: usize },
+    Show {
+        #[arg(short, long, default_value_t = 0)]
+        tail: usize,
+    },
+    Revive {
+        id: usize,
+    },
 }

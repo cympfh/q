@@ -1,10 +1,11 @@
 use crate::job::Job;
 use chrono::Local;
-use rusqlite::{Connection, Result};
+use rusqlite::{Connection, Result, Row};
 
 pub enum Fetch {
     NotDone,
     AllOrderById,
+    TailOrderById(usize),
 }
 
 pub struct Database {
@@ -21,7 +22,7 @@ impl Database {
                 done BOOL NOT NULL,
                 succeeded INTEGER NOT NULL,
                 failed INTEGER NOT NULL,
-                created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                created DATETIME NOT NULL,
                 last_executed DATETIME
             )",
             (),
@@ -30,43 +31,16 @@ impl Database {
     }
     pub fn push(&self, cmd: &Vec<String>) -> Result<()> {
         let cmddata = serde_json::to_string(cmd).expect("json serialize");
+        let now = Local::now().format("%Y-%m-%dT%H:%M:%S").to_string();
         self.conn.execute(
-            "INSERT INTO jobs (cmd, done, succeeded, failed)
-            VALUES (?1, ?2, ?3, ?4)",
-            (cmddata, false, 0, 0),
+            "INSERT INTO jobs (cmd, done, succeeded, failed, created)
+            VALUES (?1, ?2, ?3, ?4, ?5)",
+            (cmddata, false, 0, 0, now),
         )?;
         Ok(())
     }
     pub fn fetch(&self, f: Fetch) -> Result<Vec<Job>> {
-        let mut stmt = match f {
-            Fetch::AllOrderById => self.conn.prepare(
-                "SELECT
-                    id,
-                    cmd,
-                    done,
-                    succeeded,
-                    failed,
-                    created,
-                    last_executed
-                FROM jobs
-                ORDER BY id DESC
-            ",
-            ),
-            Fetch::NotDone => self.conn.prepare(
-                "SELECT
-                    id,
-                    cmd,
-                    done,
-                    succeeded,
-                    failed,
-                    created,
-                    last_executed
-                FROM jobs
-                WHERE done IS FALSE
-            ",
-            ),
-        }?;
-        let jobs = stmt.query_map([], |row| {
+        let mapper = |row: &Row| {
             Ok(Job {
                 id: row.get(0)?,
                 cmd: serde_json::from_str(row.get::<_, String>(1)?.as_str())
@@ -77,8 +51,30 @@ impl Database {
                 created: row.get(5)?,
                 last_executed: row.get(6)?,
             })
-        })?;
-        jobs.collect()
+        };
+        match f {
+            Fetch::NotDone => self
+                .conn
+                .prepare(
+                    "SELECT id, cmd, done, succeeded, failed, created, last_executed FROM jobs WHERE done IS FALSE",
+                )?
+                .query_map((), mapper)?.collect(),
+            Fetch::AllOrderById => self
+                .conn
+                .prepare(
+                    "SELECT id, cmd, done, succeeded, failed, created, last_executed FROM jobs ORDER BY id",
+                )?
+                .query_map((), mapper)?.collect(),
+            Fetch::TailOrderById(n) => self.conn
+                .prepare(
+                    "SELECT id, cmd, done, succeeded, failed, created, last_executed FROM (
+                        SELECT * FROM jobs
+                        ORDER BY id DESC
+                        LIMIT ?1
+                    ) ORDER BY id",
+                )?
+                .query_map((n,), mapper)?.collect(),
+         }
     }
     /// done=false で上書き
     pub fn revive(&self, id: usize) -> Result<()> {

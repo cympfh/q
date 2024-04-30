@@ -18,7 +18,7 @@ fn main() -> Result<()> {
     match args.command {
         None if !args.values.is_empty() => ctrl.push(&args.values)?,
         None => ctrl.pop_then_execute(args.num, args.interval)?,
-        Some(Commands::Show) => ctrl.show()?,
+        Some(Commands::Show { tail }) => ctrl.show(tail)?,
         Some(Commands::Revive { id }) => ctrl.revive(id)?,
     };
     Ok(())

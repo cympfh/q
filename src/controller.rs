@@ -41,14 +41,18 @@ impl Controller {
         }
         Ok(())
     }
-    pub fn show(&mut self) -> Result<()> {
-        let jobs = self.database.fetch(Fetch::AllOrderById)?;
+    pub fn show(&self, tail: usize) -> Result<()> {
+        let jobs = self.database.fetch(if tail == 0 {
+            Fetch::AllOrderById
+        } else {
+            Fetch::TailOrderById(tail)
+        })?;
         for job in jobs {
-            println!("{:?}", job);
+            println!("{}", job);
         }
         Ok(())
     }
-    pub fn revive(&mut self, id: usize) -> Result<()> {
+    pub fn revive(&self, id: usize) -> Result<()> {
         self.database.revive(id)?;
         Ok(())
     }
