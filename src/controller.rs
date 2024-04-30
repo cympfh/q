@@ -1,6 +1,7 @@
 use crate::database::{Database, Fetch};
 use crate::shell::eval;
 use rusqlite::Result;
+use std::io::{self, Write};
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -47,8 +48,11 @@ impl Controller {
         } else {
             Fetch::TailOrderById(tail)
         })?;
+        let mut handle = io::stdout().lock();
         for job in jobs {
-            println!("{}", job);
+            if let Err(_) = writeln!(handle, "{}", job) {
+                break;
+            }
         }
         Ok(())
     }
