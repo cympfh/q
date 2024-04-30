@@ -45,14 +45,13 @@ $ q
 
 ```bash
 $ q [-n/--num <num>] [-i/--interval <sec>]
+```
 
 `-n` is the number of jobs you want to pop.
 `-i` is the interval seconds for jobs.
-<!-- `q` is executing `n` jobs. If any job failed, `q` stops immediately. -->
 
 `-n` で取り出すジョブの個数を指定する.
 `--interval` はその際にジョブとジョブの間に何秒間のインターバルを置くかを指定する.
-<!-- `q` は取り出したジョブを順番に実行するが, 一つでもジョブに失敗した場合は直ちに残り全てを中止する. -->
 
 ### (subcommand) show
 
@@ -60,8 +59,12 @@ $ q [-n/--num <num>] [-i/--interval <sec>]
 $ q show
 ```
 
+過去キューに登録されたジョブを全て表示する.
+
 ### (subcommand) revive
 
 ```bash
 $ q revive <JOB_ID>
 ```
+
+一度失敗したジョブをもう一度キューに入れ直す.
