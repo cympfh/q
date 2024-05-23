@@ -63,7 +63,14 @@ $ q [-n/--num <num>] [-i/--interval <sec>]
 $ q show
 ```
 
-過去キューに登録されたジョブを全て表示する.
+Shows all queue (including history).
+
+キューに登録されたジョブを履歴を含めて全て表示する.
+
+- [ ] TODO: `--filer` option
+  - `--filter done`
+  - `--filter failed`
+  - ...
 
 ### (subcommand) revive
 
@@ -71,7 +78,9 @@ $ q show
 $ q revive <JOB_ID>
 ```
 
-一度失敗したジョブをもう一度キューに入れ直す.
+Revives a job which failed into the queue.
+
+失敗したジョブをもう一度キューに入れ直す.
 
 ### (subcommand) rm
 
@@ -79,11 +88,15 @@ $ q revive <JOB_ID>
 $ q rm <JOB_ID>
 ```
 
-リストから完全に消す
+Remove the job from the queue (removed also from history).
+
+リストから完全に消す.
 
 ## How to clear
 
-すべてのリスト履歴を抹消する方法
+If you want clear the queue and history, remove the file `.q`.
+
+すべてのリスト履歴を抹消するには `.q` を消す.
 
 ```bash
 $ rm .q
