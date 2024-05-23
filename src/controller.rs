@@ -58,4 +58,8 @@ impl Controller {
         self.database.revive(id)?;
         Ok(())
     }
+    pub fn rm(&self, id: usize) -> Result<()> {
+        self.database.rm(id)?;
+        Ok(())
+    }
 }

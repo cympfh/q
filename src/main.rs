@@ -20,6 +20,7 @@ fn main() -> Result<()> {
         None => ctrl.pop_then_execute(args.num, args.interval)?,
         Some(Commands::Show { tail }) => ctrl.show(tail)?,
         Some(Commands::Revive { id }) => ctrl.revive(id)?,
+        Some(Commands::Rm { id }) => ctrl.rm(id)?,
     };
     Ok(())
 }

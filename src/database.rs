@@ -91,6 +91,20 @@ impl Database {
         }
         Ok(())
     }
+    /// レコードを削除
+    pub fn rm(&self, id: usize) -> Result<()> {
+        let n = self.conn.execute(
+            "
+            DELETE FROM jobs
+            WHERE id = ?1
+            ",
+            (id,),
+        )?;
+        if n == 0 {
+            eprintln!("Not found job (id={})", id);
+        }
+        Ok(())
+    }
     /// コマンド実行終了
     pub fn finish(&self, id: u32, code: i32) -> Result<()> {
         let now = Local::now().format("%Y-%m-%dT%H:%M:%S").to_string();

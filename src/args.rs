@@ -23,4 +23,7 @@ pub enum Commands {
     Revive {
         id: usize,
     },
+    Rm {
+        id: usize,
+    },
 }

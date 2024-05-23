@@ -21,19 +21,19 @@ No more q!!
 
 ## Usage
 
-### push jobs
+### push a job
 
 ```bash
 $ q -- <command>
 ```
 
-`--` is a delimitar. Optional but recommended for non-ambiguious command parsing.
 `<command>` is shell command what you want to push/to do later.
+`--` is a delimitar. This is optional but recommended for non-ambiguious command parsing.
 
 `<command>` に push (つまり後で実行) したいコマンドを書く.
-ただしコマンドの曖昧性を排除するため `--` を前につけておくこと.
+ただしコマンドの曖昧性を排除するため `--` を前につけておくことを推奨.
 
-### pop jobs
+### pop jobs (and execute)
 
 ```bash
 $ q
@@ -41,7 +41,11 @@ $ q
 
 `q` pops a job, then execute it.
 
-`q` を実行すればキューから一つジョブを取り出して実行する.
+単に `q` と実行すればキューから一つジョブを取り出して実行する.
+
+`q` can pop multiple jobs and execute them.
+
+複数取り出して逐次実行する為に次のオプションを使う.
 
 ```bash
 $ q [-n/--num <num>] [-i/--interval <sec>]
@@ -68,3 +72,20 @@ $ q revive <JOB_ID>
 ```
 
 一度失敗したジョブをもう一度キューに入れ直す.
+
+### (subcommand) rm
+
+```bash
+$ q rm <JOB_ID>
+```
+
+リストから完全に消す
+
+## How to clear
+
+すべてのリスト履歴を抹消する方法
+
+```bash
+$ rm .q
+```
+
