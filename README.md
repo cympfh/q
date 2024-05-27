@@ -67,10 +67,9 @@ Shows all queue (including history).
 
 キューに登録されたジョブを履歴を含めて全て表示する.
 
-- [ ] TODO: `--filer` option
-  - `--filter done`
-  - `--filter failed`
-  - ...
+```bash
+$ q show --tail 10 --filter 'done==false or failed > 0'
+```
 
 ### (subcommand) revive
 

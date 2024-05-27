@@ -4,8 +4,8 @@ use rusqlite::{Connection, Result, Row};
 
 pub enum Fetch {
     NotDone,
-    AllOrderById,
-    TailOrderById(usize),
+    AllOrderById(String),
+    TailOrderById(String, usize),
 }
 
 pub struct Database {
@@ -59,21 +59,32 @@ impl Database {
                     "SELECT id, cmd, done, succeeded, failed, created, last_executed FROM jobs WHERE done IS FALSE",
                 )?
                 .query_map((), mapper)?.collect(),
-            Fetch::AllOrderById => self
+            Fetch::AllOrderById(filter) => {
+                let query = format!(
+                    "SELECT id, cmd, done, succeeded, failed, created, last_executed
+                        FROM jobs
+                        WHERE 1 == 1 AND ({})
+                        ORDER BY id",
+                    filter);
+                self
                 .conn
-                .prepare(
-                    "SELECT id, cmd, done, succeeded, failed, created, last_executed FROM jobs ORDER BY id",
-                )?
-                .query_map((), mapper)?.collect(),
-            Fetch::TailOrderById(n) => self.conn
-                .prepare(
+                .prepare(query.as_str())?
+                .query_map((), mapper)?.collect()
+            },
+            Fetch::TailOrderById(filter, n) =>{
+                let query = format!(
                     "SELECT id, cmd, done, succeeded, failed, created, last_executed FROM (
                         SELECT * FROM jobs
+                        WHERE 1 == 1 AND ({})
                         ORDER BY id DESC
                         LIMIT ?1
                     ) ORDER BY id",
-                )?
-                .query_map((n,), mapper)?.collect(),
+                    filter
+                );
+                self.conn
+                .prepare(query.as_str())?
+                .query_map((n,), mapper)?.collect()
+            },
          }
     }
     /// done=false で上書き

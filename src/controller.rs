@@ -40,11 +40,11 @@ impl Controller {
         }
         Ok(())
     }
-    pub fn show(&self, tail: usize) -> Result<()> {
+    pub fn show(&self, filter: String, tail: usize) -> Result<()> {
         let jobs = self.database.fetch(if tail == 0 {
-            Fetch::AllOrderById
+            Fetch::AllOrderById(filter)
         } else {
-            Fetch::TailOrderById(tail)
+            Fetch::TailOrderById(filter, tail)
         })?;
         let mut handle = io::stdout().lock();
         for job in jobs {
