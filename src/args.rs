@@ -17,6 +17,8 @@ pub struct Args {
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     Show {
+        #[arg(short, long, default_value_t = String::new())]
+        filter: String,
         #[arg(short, long, default_value_t = 0)]
         tail: usize,
     },
