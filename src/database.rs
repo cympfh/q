@@ -60,26 +60,29 @@ impl Database {
                 )?
                 .query_map((), mapper)?.collect(),
             Fetch::AllOrderById(filter) => {
+                let wherequery = if filter.is_empty() { format!("1 == 1") } else { filter };
                 let query = format!(
                     "SELECT id, cmd, done, succeeded, failed, created, last_executed
                         FROM jobs
-                        WHERE 1 == 1 AND ({})
+                        WHERE {}
                         ORDER BY id",
-                    filter);
+                    wherequery
+                );
                 self
                 .conn
                 .prepare(query.as_str())?
                 .query_map((), mapper)?.collect()
             },
             Fetch::TailOrderById(filter, n) =>{
+                let wherequery = if filter.is_empty() { format!("1 == 1") } else { filter };
                 let query = format!(
                     "SELECT id, cmd, done, succeeded, failed, created, last_executed FROM (
                         SELECT * FROM jobs
-                        WHERE 1 == 1 AND ({})
+                        WHERE {}
                         ORDER BY id DESC
                         LIMIT ?1
                     ) ORDER BY id",
-                    filter
+                    wherequery
                 );
                 self.conn
                 .prepare(query.as_str())?
